@@ -26,7 +26,7 @@ func GetConsoleTree(trace *lookup.Trace) string {
 			l.Indent()
 			l.AppendItem(fmt.Sprintf("%s: %s %s", greenText.Sprint("for"), r.Rrtype, r.Domain))
 			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("on"), r.Nameserver))
-			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("taking"), r.Latency))
+			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("took"), r.Latency))
 			l.AppendItem(fmt.Sprintf("%s:", greenText.Sprint("answers")))
 			l.Indent()
 			for _, r := range r.Answers {
@@ -42,6 +42,7 @@ func GetConsoleTree(trace *lookup.Trace) string {
 			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("for"), r.Domain))
 			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("in"), r.Zone))
 			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("key"), r.Key))
+			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("algorithm"), r.Algorithm))
 			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("signature"), r.Signature))
 			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("hash"), r.KeySha256))
 			l.AppendItem(fmt.Sprintf("%s:", greenText.Sprint("records")))
