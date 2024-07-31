@@ -7,8 +7,7 @@ import (
 	"github.com/nsmithuk/dns-lookup-go/lookup"
 )
 
-func PrintTrace(trace *lookup.Trace) {
-
+func GetConsoleTree(trace *lookup.Trace) string {
 	text.EnableColors()
 
 	headerText := text.Colors{text.Bold, text.Italic, text.FgHiMagenta}
@@ -66,5 +65,5 @@ func PrintTrace(trace *lookup.Trace) {
 		}
 	}
 
-	fmt.Println(l.Render())
+	return l.Render()
 }
