@@ -1,8 +1,11 @@
-module github.com/nsmithuk/dns-lookup-go
+module github.com/nsmithuk/dns-lookup-go-trace
 
 go 1.22
 
-require github.com/jedib0t/go-pretty/v6 v6.5.9
+require (
+	github.com/jedib0t/go-pretty/v6 v6.5.9
+	github.com/nsmithuk/dns-lookup-go v1.1.0
+)
 
 require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
