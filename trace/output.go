@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/list"
 	"github.com/jedib0t/go-pretty/v6/text"
-	"github.com/nsmithuk/dns-lookup-go/resolver"
+	"github.com/nsmithuk/dns-resolver-go/resolver"
 )
 
 func GetRecursiveQueryConsoleTree(trace *resolver.RecursiveQueryTrace) string {
@@ -32,10 +32,11 @@ func GetRecursiveQueryConsoleTree(trace *resolver.RecursiveQueryTrace) string {
 
 			l.AppendItem(headerText.Sprint("DNS Query"))
 			l.Indent()
-			//l.AppendItem(fmt.Sprintf("%s: %d", greenText.Sprint("depth"), r.Depth))
 			l.AppendItem(fmt.Sprintf("%s: %s %s", greenText.Sprint("for"), r.Domain, r.Rrtype))
 			l.AppendItem(fmt.Sprintf("%s: %s %s", greenText.Sprint("on"), r.ServerHost, r.ServerUri))
 			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("took"), r.Latency))
+			l.AppendItem(fmt.Sprintf("%s: %t", greenText.Sprint("truncated"), r.Truncated))
+			l.AppendItem(fmt.Sprintf("%s: %t", greenText.Sprint("authoritative"), r.Authoritative))
 
 			if len(r.Answers) > 0 {
 				l.AppendItem(fmt.Sprintf("%s:", greenText.Sprint("answers found")))
