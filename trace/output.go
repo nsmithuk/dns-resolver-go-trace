@@ -5,6 +5,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/list"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/nsmithuk/dns-resolver-go/resolver"
+	"github.com/nsmithuk/dns-resolver-go/resolver/dnssec"
 )
 
 func GetRecursiveQueryConsoleTree(trace *resolver.RecursiveQueryTrace) string {
@@ -72,7 +73,7 @@ func GetRecursiveQueryConsoleTree(trace *resolver.RecursiveQueryTrace) string {
 	return l.Render()
 }
 
-func GetAuthenticationConsoleTree(trace *resolver.AuthenticationTrace) string {
+func GetAuthenticationConsoleTree(trace *dnssec.Trace) string {
 	text.EnableColors()
 
 	headerText := text.Colors{text.Bold, text.Italic, text.FgHiMagenta}
@@ -84,14 +85,15 @@ func GetAuthenticationConsoleTree(trace *resolver.AuthenticationTrace) string {
 	l := list.NewWriter()
 	l.SetStyle(list.StyleConnectedRounded)
 
+	var lastSeenDepth uint8 = 0
 	for _, entry := range trace.Records {
+
 		switch r := entry.(type) {
-		case resolver.AuthenticationTraceLookup:
-			l.AppendItem(headerText.Sprint("DNS resolver"))
+		case dnssec.TraceAuthenticatingMessage:
+			l.AppendItem(headerText.Sprint("DNS Message to Authenticate"))
 			l.Indent()
-			l.AppendItem(fmt.Sprintf("%s: %s %s", greenText.Sprint("for"), r.Rrtype, r.Domain))
-			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("on"), r.Nameserver))
-			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("took"), r.Latency))
+			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("domain"), r.Domain))
+			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("type"), r.Rrtype))
 			l.AppendItem(fmt.Sprintf("%s:", greenText.Sprint("answers")))
 			l.Indent()
 			for _, r := range r.Answers {
@@ -99,7 +101,25 @@ func GetAuthenticationConsoleTree(trace *resolver.AuthenticationTrace) string {
 			}
 			l.UnIndent()
 			l.UnIndent()
-		case resolver.AuthenticationTraceSignatureValidation:
+		case dnssec.TraceDnsLookup:
+			l.AppendItem(headerText.Sprint("DNS Lookup"))
+			l.Indent()
+			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("domain"), r.Domain))
+			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("type"), r.Rrtype))
+			l.AppendItem(fmt.Sprintf("%s:", greenText.Sprint("answers")))
+			l.Indent()
+			for _, r := range r.Answers {
+				l.AppendItem(faintText.Sprint(r))
+			}
+			l.UnIndent()
+			l.UnIndent()
+		case dnssec.TraceSignature:
+			if r.Depth < lastSeenDepth {
+				// Resets the tree.
+				l.UnIndentAll()
+			}
+			lastSeenDepth = r.Depth
+
 			l.Indent()
 			l.AppendItem(headerText.Sprint("Signature Validation"))
 			l.Indent()
@@ -120,14 +140,17 @@ func GetAuthenticationConsoleTree(trace *resolver.AuthenticationTrace) string {
 			if r.KeyType == "zsk" {
 				l.UnIndent()
 			}
-		case resolver.AuthenticationTraceDelegationSignerCheck:
+			l.UnIndent()
+		case dnssec.TraceDelegationSigner:
 			l.Indent()
 			l.AppendItem(headerText.Sprint("Delegation Signer Check"))
 			l.Indent()
-			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("child"), r.Child))
-			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("parent"), r.Parent))
+			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("zone"), r.Zone))
+			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("from"), r.From))
 			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("hash"), r.Hash))
-			l.UnIndent()
+			l.AppendItem(fmt.Sprintf("%s: %s", greenText.Sprint("digest"), r.Digest))
+			//l.UnIndent()
+			l.Indent()
 		}
 	}
 
